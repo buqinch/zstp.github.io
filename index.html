@@ -75,20 +75,6 @@
             font-style: italic;
             text-align: center;
         }
-        .direction-controls {
-            margin-top: 15px;
-            text-align: center;
-        }
-        .direction-row {
-            margin: 5px 0;
-        }
-        .direction-btn {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -98,21 +84,17 @@
     <div class="file-selector">
         <h2>选择要查看的文件</h2>
         <div class="file-list">
-            <div class="file-card" data-file="计算机网络.xmind">
+            <div class="file-card" data-file="file1.xmind">
                 <h3>文件一</h3>
-                <p>计算机网络.xmind</p>
+                <p>file1.xmind</p>
             </div>
-            <div class="file-card" data-file="计算机操作系统.xmind">
+            <div class="file-card" data-file="file2.xmind">
                 <h3>文件二</h3>
-                <p>计算机操作系统.xmind</p>
+                <p>file2.xmind</p>
             </div>
-            <div class="file-card" data-file="计算机组成.xmind">
+            <div class="file-card" data-file="file3.xmind">
                 <h3>文件三</h3>
-                <p>计算机组成.xmind</p>
-            </div>
-            <div class="file-card" data-file="数据结构.xmind">
-                <h3>文件四</h3>
-                <p>数据结构.xmind</p>
+                <p>file3.xmind</p>
             </div>
         </div>
     </div>
@@ -126,19 +108,6 @@
         <button id="zoomOut">缩小</button>
         <button id="resetView">重置视图</button>
     </div>
-    
-    <div class="direction-controls">
-        <div class="direction-row">
-            <button id="moveUp" class="direction-btn">↑</button>
-        </div>
-        <div class="direction-row">
-            <button id="moveLeft" class="direction-btn">←</button>
-            <button id="moveRight" class="direction-btn">→</button>
-        </div>
-        <div class="direction-row">
-            <button id="moveDown" class="direction-btn">↓</button>
-        </div>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -147,14 +116,9 @@
             const zoomInBtn = document.getElementById('zoomIn');
             const zoomOutBtn = document.getElementById('zoomOut');
             const resetViewBtn = document.getElementById('resetView');
-            const moveUpBtn = document.getElementById('moveUp');
-            const moveDownBtn = document.getElementById('moveDown');
-            const moveLeftBtn = document.getElementById('moveLeft');
-            const moveRightBtn = document.getElementById('moveRight');
             const fileCards = document.querySelectorAll('.file-card');
             
             let viewer = null;
-            const moveStep = 50;
             
             // 处理预定义文件的点击
             fileCards.forEach(card => {
@@ -185,7 +149,6 @@
                         viewer.load(data);
                         viewerContainer.style.display = 'block';
                         statusEl.textContent = `已加载: ${filename}`;
-                        enableKeyboardNavigation();
                     })
                     .catch(error => {
                         statusEl.textContent = `错误: ${error.message}`;
@@ -205,57 +168,6 @@
             resetViewBtn.addEventListener('click', () => {
                 if (viewer) viewer.resetView();
             });
-            
-            // 方向控制
-            moveUpBtn.addEventListener('click', () => {
-                moveDirection(0, moveStep);
-            });
-            
-            moveDownBtn.addEventListener('click', () => {
-                moveDirection(0, -moveStep);
-            });
-            
-            moveLeftBtn.addEventListener('click', () => {
-                moveDirection(moveStep, 0);
-            });
-            
-            moveRightBtn.addEventListener('click', () => {
-                moveDirection(-moveStep, 0);
-            });
-            
-            function moveDirection(x, y) {
-                if (viewer) {
-                    const sheet = viewer.getSheetContainer();
-                    if (sheet) {
-                        sheet.translateBy(x, y);
-                    }
-                }
-            }
-            
-            function enableKeyboardNavigation() {
-                document.addEventListener('keydown', function(event) {
-                    if (!viewer) return;
-                    
-                    switch (event.key) {
-                        case 'ArrowUp':
-                            moveDirection(0, moveStep);
-                            event.preventDefault();
-                            break;
-                        case 'ArrowDown':
-                            moveDirection(0, -moveStep);
-                            event.preventDefault();
-                            break;
-                        case 'ArrowLeft':
-                            moveDirection(moveStep, 0);
-                            event.preventDefault();
-                            break;
-                        case 'ArrowRight':
-                            moveDirection(-moveStep, 0);
-                            event.preventDefault();
-                            break;
-                    }
-                });
-            }
         });
     </script>
 </body>
