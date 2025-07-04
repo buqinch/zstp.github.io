@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMind文件查看器</title>
+    <!-- 正确引入UMD版本的脚本 -->
+    <script src="https://unpkg.com/xmind-embed-viewer/dist/umd/xmind-embed-viewer.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #999;
+            background-color: #f5f5f5;
+        }
+        #viewer-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        .controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>XMind文件查看器</h1>
+    
+    <div class="upload-area" id="dropArea">
+        <p>拖放XMind文件到此处，或点击选择文件</p>
+        <input type="file" id="fileInput" accept=".xmind" style="display: none;">
+    </div>
+    
+    <div class="status" id="status"></div>
+    
+    <div id="viewer-container"></div>
+    
+    <div class="controls">
+        <button id="zoomIn">放大</button>
+        <button id="zoomOut">缩小</button>
+        <button id="resetView">重置视图</button>
+    </div>
+
+    <script>
+        // 确保DOM完全加载后再执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const viewerContainer = document.getElementById('viewer-container');
+            const statusEl = document.getElementById('status');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const resetViewBtn = document.getElementById('resetView');
+            
+            // 初始化XMind查看器变量
+            let viewer = null;
+            
+            // 点击上传区域触发文件选择
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // 监听文件选择
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // 拖放功能
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.style.borderColor = '#4CAF50';
+            });
+            
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.style.borderColor = '#ccc';
+            });
+            
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.style.borderColor = '#ccc';
+                
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // 处理文件选择
+            function handleFileSelect(e) {
+                if (e.target.files.length) {
+                    handleFile(e.target.files[0]);
+                }
+            }
+            
+            // 处理文件加载
+            function handleFile(file) {
+                if (!file.name.endsWith('.xmind')) {
+                    statusEl.textContent = '错误：请选择有效的.xmind文件';
+                    return;
+                }
+                
+                statusEl.textContent = '正在加载文件...';
+                
+                // 读取文件内容
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        // 初始化查看器
+                        if (!viewer) {
+                            viewer = new XMindEmbedViewer({
+                                el: '#viewer-container'
+                            });
+                        }
+                        
+                        // 加载文件内容
+                        viewer.load(e.target.result);
+                        
+                        // 显示查看器
+                        viewerContainer.style.display = 'block';
+                        statusEl.textContent = `已加载: ${file.name}`;
+                    } catch (error) {
+                        statusEl.textContent = `错误: ${error.message}`;
+                        console.error(error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    statusEl.textContent = '读取文件时出错';
+                };
+                
+                reader.readAsArrayBuffer(file);
+            }
+            
+            // 缩放控制
+            zoomInBtn.addEventListener('click', () => {
+                if (viewer) viewer.zoomIn();
+            });
+            
+            zoomOutBtn.addEventListener('click', () => {
+                if (viewer) viewer.zoomOut();
+            });
+            
+            resetViewBtn.addEventListener('click', () => {
+                if (viewer) viewer.resetView();
+            });
+        });
+    </script>
+</body>
+</html>
